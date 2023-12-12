@@ -49,13 +49,7 @@ class Student:
         return self.get_average_student_rating_all_courses(self) < other.get_average_student_rating_all_courses(other)
 
     def __str__(self):
-#        student_name: Student
-        for student_name in students_list:
-            return f'Имя: {self.name}\n' \
-                   f'Фамилия: {self.surname}\n' \
-                   f'Средняя оценка за домашние задания: {self.get_average_student_rating_all_courses(student_name)}\n' \
-                   f'Курсы в процессе изучения: {", ".join(self.courses_in_progress)},\n' \
-                   f'Завершенные курсы: {", ".join(self.finished_courses)}\n'
+        return f'Имя: {self.name}\nФамилия: {self.surname}\nСредняя оценка за домашние задания: {self.get_average_student_rating_all_courses(student)}\nКурсы в процессе изучения: {", ".join(self.courses_in_progress)},\nЗавершенные курсы: {", ".join(self.finished_courses)}\n'
 
 
 class Mentor:
@@ -63,7 +57,6 @@ class Mentor:
         self.name = name
         self.surname = surname
         self.courses_attached = []
-
 
 class Lector(Mentor):
 
@@ -101,11 +94,7 @@ class Lector(Mentor):
         return self.get_average_lector_rating_all_courses(self) < other.get_average_lector_rating_all_courses(other)
 
     def __str__(self):
-        for lector_name in lectors_list:
-            return f'Имя: {self.name}\n' \
-                   f'Фамилия: {self.surname}\n' \
-                   f'Средняя оценка за лекции: {self.get_average_lector_rating_all_courses(lector_name)}\n'
-
+        return f'Имя: {self.name}\nФамилия: {self.surname}\nСредняя оценка за лекции: {self.get_average_lector_rating_all_courses(lector)}\n'
 
 class Reviewer(Mentor):  # эксперты только могут проверять домашнее задание
 
@@ -125,100 +114,98 @@ class Reviewer(Mentor):  # эксперты только могут провер
 
     def __str__(self):
         for reviewer in reviewers_list:
-            return f'Имя: {self.name}\n' \
-                   f'Фамилия: {self.surname}\n'
+            return f'Имя: {self.name}\nФамилия: {self.surname}\n'
 
+if __name__ == '__main__':
 
 # класс Student: Создание 2х экземпляров класса со всеми доступными атрибутами
 
-student_1 = Student('Ruoy', 'Eman', 'your_gender')
-student_2 = Student('Your', 'Name', 'older_gender')
+    student_1 = Student('Ruoy', 'Eman', 'your_gender')
+    student_2 = Student('Your', 'Name', 'older_gender')
 
-students_list = [student_1, student_2]
+    students_list = [student_1, student_2]
 
-student_1.finished_courses = ['Python', 'Git', 'English', 'Java']
-student_2.finished_courses = ['Java', 'Full Stack', 'Spanish', 'Python']
+    student_1.finished_courses = ['Python', 'Git', 'English', 'Java']
+    student_2.finished_courses = ['Java', 'Full Stack', 'Spanish', 'Python']
 
-student_1.courses_in_progress = ['Spanish', 'Data Science', 'DevOps']
-student_2.courses_in_progress = ['English', 'Git', 'Data Studio']
+    student_1.courses_in_progress = ['Spanish', 'Data Science', 'DevOps']
+    student_2.courses_in_progress = ['English', 'Git', 'Data Studio']
 
 # Создание 2х экземпляров класса "Mentor" со всеми доступными атрибутами
 
-mentor_1 = Mentor('Bony', 'Mono')
-mentor_2 = Mentor('Clide', 'Nano')
-mentor_1.courses_attached = ['Python', 'Full Stack', 'Git']
-mentor_2.courses_attached = ['Java', 'English', 'Spanish']
+    mentor_1 = Mentor('Bony', 'Mono')
+    mentor_2 = Mentor('Clide', 'Nano')
+    mentor_1.courses_attached = ['Python', 'Full Stack', 'Git']
+    mentor_2.courses_attached = ['Java', 'English', 'Spanish']
 
 # Создание 3х экземпляров класса "Lector" со всеми доступными атрибутами
 
-lector_1 = Lector('Tommy', 'Cat')
-lector_2 = Lector('Gerry', 'Mouse')
-lector_3 = Lector('Scooby', 'Doo')
+    lector_1 = Lector('Tommy', 'Cat')
+    lector_2 = Lector('Gerry', 'Mouse')
+    lector_3 = Lector('Scooby', 'Doo')
 
-lectors_list = [lector_1, lector_2, lector_3]
+    lectors_list = [lector_1, lector_2, lector_3]
 
-lector_1.courses_attached = ['Python', 'Full Stack', 'Git', 'English']
-lector_2.courses_attached = ['Java', 'Git', 'English', 'Spanish', 'DevOps']
-lector_3.courses_attached = ['English', 'Spanish', 'Git', 'Java', 'DevOps']
+    lector_1.courses_attached = ['Python', 'Full Stack', 'Git', 'English']
+    lector_2.courses_attached = ['Java', 'Git', 'English', 'Spanish', 'DevOps']
+    lector_3.courses_attached = ['English', 'Spanish', 'Git', 'Java', 'DevOps']
 
-student_1.rate_course(lector_1, 'Python', 10)
-student_2.rate_course(lector_1, 'Python', 9)
-student_2.rate_course(lector_1, 'Full Stack', 7)
-student_1.rate_course(lector_2, 'Java', 7)
-student_2.rate_course(lector_2, 'Java', 9)
-student_1.rate_course(lector_2, 'Git', 8)
-student_2.rate_course(lector_3, 'Spanish', 6)
-student_1.rate_course(lector_3, 'English', 9)
+    student_1.rate_course(lector_1, 'Python', 10)
+    student_2.rate_course(lector_1, 'Python', 9)
+    student_2.rate_course(lector_1, 'Full Stack', 7)
+    student_1.rate_course(lector_2, 'Java', 7)
+    student_2.rate_course(lector_2, 'Java', 9)
+    student_1.rate_course(lector_2, 'Git', 8)
+    student_2.rate_course(lector_3, 'Spanish', 6)
+    student_1.rate_course(lector_3, 'English', 9)
 
 # Создание 3х экземпляров класса "Reviewer" со всеми доступными атрибутами
 
-reviewer_1 = Reviewer('Monica', 'Beluchi')
-reviewer_2 = Reviewer('Donald', 'Reygan')
-reviewer_3 = Reviewer('Snoop', 'Dogg')
-reviewers_list = [reviewer_1, reviewer_2, reviewer_3]
+    reviewer_1 = Reviewer('Monica', 'Beluchi')
+    reviewer_2 = Reviewer('Donald', 'Reygan')
+    reviewer_3 = Reviewer('Snoop', 'Dogg')
+    reviewers_list = [reviewer_1, reviewer_2, reviewer_3]
 
-reviewer_1.courses_attached = ['Python', 'Full Stack']
-reviewer_2.courses_attached = ['Java', 'Git']
-reviewer_3.courses_attached = ['English', 'Spanish']
+    reviewer_1.courses_attached = ['Python', 'Full Stack']
+    reviewer_2.courses_attached = ['Java', 'Git']
+    reviewer_3.courses_attached = ['English', 'Spanish']
 
 ## Оценки студентов за завершенные курсы
 
-reviewer_1.rate_hw(student_1, 'Python', 10)
-reviewer_1.rate_hw(student_2, 'Full Stack', 9)
-reviewer_1.rate_hw(student_2, 'Python', 9)
-reviewer_2.rate_hw(student_1, 'Git', 8)
-reviewer_2.rate_hw(student_2, 'Java', 9)
-reviewer_1.rate_hw(student_1, 'Java', 6)
-reviewer_3.rate_hw(student_1, 'English', 7)
-reviewer_3.rate_hw(student_2, 'Spanish', 6)
-reviewer_1.rate_hw(student_1, 'Python', 5)
-reviewer_1.rate_hw(student_2, 'Full Stack', 3)
-reviewer_1.rate_hw(student_2, 'Python', 5)
-reviewer_2.rate_hw(student_1, 'Git', 4)
-reviewer_2.rate_hw(student_2, 'Java', 5)
-reviewer_1.rate_hw(student_1, 'Java', 7)
-reviewer_3.rate_hw(student_1, 'English', 3)
-reviewer_3.rate_hw(student_2, 'Spanish', 5)
+    reviewer_1.rate_hw(student_1, 'Python', 10)
+    reviewer_1.rate_hw(student_2, 'Full Stack', 9)
+    reviewer_1.rate_hw(student_2, 'Python', 9)
+    reviewer_2.rate_hw(student_1, 'Git', 8)
+    reviewer_2.rate_hw(student_2, 'Java', 9)
+    reviewer_1.rate_hw(student_1, 'Java', 6)
+    reviewer_3.rate_hw(student_1, 'English', 7)
+    reviewer_3.rate_hw(student_2, 'Spanish', 6)
+    reviewer_1.rate_hw(student_1, 'Python', 5)
+    reviewer_1.rate_hw(student_2, 'Full Stack', 3)
+    reviewer_1.rate_hw(student_2, 'Python', 5)
+    reviewer_2.rate_hw(student_1, 'Git', 4)
+    reviewer_2.rate_hw(student_2, 'Java', 5)
+    reviewer_1.rate_hw(student_1, 'Java', 7)
+    reviewer_3.rate_hw(student_1, 'English', 3)
+    reviewer_3.rate_hw(student_2, 'Spanish', 5)
 
 ## Оценки студентов за курсы в процессе обучения
-reviewer_1.rate_hw(student_1, 'Data Science', 8)
-reviewer_1.rate_hw(student_2, 'Data Studio', 9)
-reviewer_2.rate_hw(student_1, 'Spanish', 10)
-reviewer_2.rate_hw(student_2, 'Git', 9)
-reviewer_3.rate_hw(student_1, 'DevOps', 7)
-reviewer_3.rate_hw(student_2, 'English', 6)
+    reviewer_1.rate_hw(student_1, 'Data Science', 8)
+    reviewer_1.rate_hw(student_2, 'Data Studio', 9)
+    reviewer_2.rate_hw(student_1, 'Spanish', 10)
+    reviewer_2.rate_hw(student_2, 'Git', 9)
+    reviewer_3.rate_hw(student_1, 'DevOps', 7)
+    reviewer_3.rate_hw(student_2, 'English', 6)
 
 print('-------------------------------------------------------------------')
 print('Магические методы __repr__() и __str__():') # Магические методы __str__()
 print('-------------------------------------------------------------------')
-print(repr(reviewer_1),str(reviewer_1), sep = '\n')
-print(repr(reviewer_2),str(reviewer_2), sep = '\n')
-print(repr(reviewer_3),str(reviewer_3), sep = '\n')
-print(repr(lector_1), str(lector_1), sep = '\n')
-print(repr(lector_2), str(lector_2), sep = '\n')
-print(repr(lector_3), str(lector_3), sep = '\n')
-print(repr(student_1), str(student_1), sep = '\n')
-print(repr(student_2), str(student_2), sep = '\n')
+for reviewer in reviewers_list:
+    print(repr(reviewer),str(reviewer), sep = '\n')
+for lector in lectors_list:
+    print(repr(lector), str(lector), sep = '\n')
+for student in students_list:
+    print(repr(student), str(student), sep = '\n')
 print()
 print('-------------------------------------------------------------------')
 print('Рейтинги студентов и лекторов:')# Рейтинги студентов и лекторов
@@ -232,12 +219,11 @@ print()
 print('-------------------------------------------------------------------')
 print('Словарь с оценками студентов и лекторов:') # Словарь с оценками студентов и лекторов
 print('-------------------------------------------------------------------')
-print(f'Оценки студента #1: {student_1.grades}')
-print(f'Оценки студента #2: {student_2.grades}')
+for student in students_list:
+    print(f'Оценки студента #1: {student.grades}')
 print()
-print(f'Оценки лектора #1: {lector_1.grades}')
-print(f'Оценки лектора #2: {lector_2.grades}')
-print(f'Оценки лектора #3: {lector_3.grades}')
+for lector in lectors_list:
+    print(f'Оценки лектора #1: {lector.grades}')
 print()
 
 """
@@ -254,8 +240,8 @@ for course in student_2.grades:
     print(f'Ср оценка студента #2 за {course}: {student_2.get_average_student_rating_one_course(student_2, course)}')
 print()
 print('Средние оценки ОДНОГО студента по ВСЕМ курсам') ## Средние оценки конкретного студента по всем курсам
-print(f'Ср оценка студента #1 по всем домашним заданиям / прошедшим курсам: {student_1.get_average_student_rating_all_courses(student_1)}')  # для подсчета средней оценки за домашние задания по всем курсам, которые сдавал студент (в качестве аргументов принимаем список завершенных курсов и имя студента);
-print(f'Ср оценка студента #2 по всем домашним заданиям / прошедшим курсам: {student_2.get_average_student_rating_all_courses(student_2)}')
+for student in students_list:
+    print(f'Ср оценка {student} по всем домашним заданиям / прошедшим курсам: {student.get_average_student_rating_all_courses(student)}')  # для подсчета средней оценки за домашние задания по всем курсам, которые сдавал студент (в качестве аргументов принимаем список завершенных курсов и имя студента);
 print()
 print('Средние оценки ВСЕХ студентов по ОДНОМУ курсу') ## Средение оценки всех студентов за конкрентный курс
 for course in student_1.grades:
@@ -287,6 +273,3 @@ for course in lector_2.grades:
 for course in lector_3.grades:
     print(f'Ср оценка лекторов по {course}: {lector_3.get_average_course_rating_all_lectors(lectors_list, course)}')
 print()
-print()
-
-
