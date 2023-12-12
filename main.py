@@ -1,56 +1,58 @@
 class Student:
-
     def __init__(self, name, surname, gender):
-        self.student = None
-        self.course = None
         self.name = name
         self.surname = surname
         self.gender = gender
         self.finished_courses = []
         self.courses_in_progress = []
         self.grades = {}
-        self.students_list = []
-        self.students_rating = {}
 
-    def rate_course(self, lector_name, course_name, grade):  # для выставления оценок лекторам студентами
-        if not isinstance(lector_name,
-                          Lector) or course_name not in self.finished_courses or course_name not in lector_name.courses_attached:
-            return 'Ошибка'
-        else:
-            if course_name in lector_name.grades:
-                lector_name.grades[course_name] += [grade]
+    def add_finished_courses(self, course_name):
+        self.finished_courses.append(course_name)
+
+    def add_courses_in_progress(self, course_name):
+        self.courses_in_progress.append(course_name)
+
+    def rate_lector(self, lector, course, grade):  # для выставления оценок лекторам студентами
+        if isinstance(lector, Lector) and course in lector.courses_attached and course in self.courses_in_progress:
+            if course in lector.grades:
+                lector.grades[course] += [grade]
+                print(f'Оценка {grade} по курсу {course} лектору {lector.name} {lector.surname} от студента {self.name} {self.surname} выставлена.')
+                return
             else:
-                lector_name.grades[course_name] = [grade]
+                lector.grades[course] = [grade]
+                print(f'Оценка {grade} по курсу {course} лектору {lector.name} {lector.surname} от студента {self.name} {self.surname} выставлена.')
+                return
+        else:
+            return 'Оценка лектору не выставлена'
 
-    def get_average_student_rating_one_course(self, student_name, course_name) -> float:  # для подсчета средней оценки за домашние задания по каждому законченному курсу данным студентом (в качестве аргументов принимаем имя студента и название курса, по которому он сдал дз);
-        self.student = student_name
-        self.course = course_name
-        return round(sum(student_name.grades[course_name]) / len(student_name.grades[course_name]), 1)
-
-    def get_average_student_rating_all_courses(self, student_name, course_name=None) -> float:  # для подсчета средней оценки за домашние задания по всем курсам, которые сдавал студент (в качестве аргументов принимаем список завершенных курсов и имя студента);
-        total_ = 0
-        self.student = student_name
-        self.course = course_name
-        for course_name in student_name.grades:
-            total_ += self.get_average_student_rating_one_course(student_name, course_name)
-        return round(total_ / len(student_name.grades), 1)
-
-    def get_average_course_rating_all_students(self, course_name, student_name=None, students=None) -> float:  # для подсчета средней оценки за домашние задания по всем студентам в рамках конкретного курса (в качестве аргументов принимаем список студентов и название курса);
-        total_ = 0
-        self.course = course_name
-        self.student = student_name
-        self.students_list = students
-        for student_name in students_list:
-            for course_name in student_name.grades:
-                total_ += self.get_average_student_rating_one_course(student_name, course_name)
-        return round(total_ / len(students), 1)
-
-    def __lt__(self, other):
-        return self.get_average_student_rating_all_courses(self) < other.get_average_student_rating_all_courses(other)
+    def get_average_student_rating_all_courses(self) -> float:  # для подсчета средней оценки за домашние задания по всем курсам, которые сдавал студент (в качестве аргументов принимаем список завершенных курсов и имя студента);
+        if len(self.grades) == 0:
+            return "У студента нет оценок"
+        else:
+            total = 0
+            list_len_sum = 0
+            for grade_list in self.grades.values():
+                list_len_sum += len(grade_list)
+                for grade in grade_list:
+                    total += grade
+            return round((total / list_len_sum), 1)
 
     def __str__(self):
-        return f'Имя: {self.name}\nФамилия: {self.surname}\nСредняя оценка за домашние задания: {self.get_average_student_rating_all_courses(student)}\nКурсы в процессе изучения: {", ".join(self.courses_in_progress)},\nЗавершенные курсы: {", ".join(self.finished_courses)}\n'
+        return (f'Имя: {self.name}\n' 
+               f'Фамилия: {self.surname}\n' 
+               f'Средняя оценка за домашние задания: {self.get_average_student_rating_all_courses()}\n' 
+               f'Курсы в процессе изучения: {", ".join(self.courses_in_progress)},\n' 
+               f'Завершенные курсы: {", ".join(self.finished_courses)}\n')
 
+    def __lt__(self, other_student):
+        """Сравнение студентов"""
+        if isinstance(other_student, Student) and len(self.grades) > 0 and len(other_student.grades) > 0:
+            return (f'Средняя оценка студента {self.name} {self.surname} = {self.get_average_student_rating_all_courses()}\n'
+                    f'Средняя оценка студента {other_student.name} {other_student.surname} = {other_student.get_average_student_rating_all_courses()}\n'
+                    f'У студента {self.name} {self.surname} оценка выше.')
+        else:
+            return 'Нет оценки ни у одного из студентов.'
 
 class Mentor:
     def __init__(self, name, surname):
@@ -62,214 +64,164 @@ class Lector(Mentor):
 
     def __init__(self, name, surname):
         super().__init__(name, surname)
-        self.lector = None
-        self.course = None
-        self.courses_attached = []
-        self.lectors_list = []
         self.grades = {}
 
-    def get_average_lector_rating_one_course(self, lector_name, course_name) -> float:  # для подсчета средней оценки лектора за лекции по конректному курсу, закрепленному за данным лектором (в качестве аргументов принимаем наименование курса и имя лектора, за которым этот курс закреплен)
-        self.name = lector_name
-        self.course = course_name
-        return round(sum(lector_name.grades[course_name]) / len(lector_name.grades[course_name]), 1)
+    def get_average_lector_rating_all_courses(self) -> float:  # для подсчета средней оценки лектора за лекции по всем курсам, закрепленных за данным лектором (в качестве аргументов принимаем список курсов и имя лектора, за которым эти курсы закреплены)
+        """Средняя оценка по курсам лектора"""
+        if len(self.grades) == 0:
+            return "Лектору не поставили оценок"
+        else:
+            total = 0
+            list_len_sum = 0
+            for grade_list in self.grades.values():
+                list_len_sum += len(grade_list)
+                for grade in grade_list:
+                    total += grade
+            return round((total / list_len_sum), 1)
 
-    def get_average_lector_rating_all_courses(self, lector_name) -> float:  # для подсчета средней оценки лектора за лекции по всем курсам, закрепленных за данным лектором (в качестве аргументов принимаем список курсов и имя лектора, за которым эти курсы закреплены)
-        total_ = 0
-        self.name = lector_name
-        for course_name in lector_name.grades:
-            total_ += self.get_average_lector_rating_one_course(lector_name, course_name)
-        return round(total_ / len(lector_name.grades), 1)
-
-    def get_average_course_rating_all_lectors(self, lectors: list, course_name, lector_name=None) -> float:  # для подсчета средней оценки за лекции всех лекторов в рамках данному курса (в качестве аргумента принимаем список лекторов и название курса)
-        total_ = 0
-        self.course = course_name
-        self.lectors_list = lectors
-        self.lector = lector_name
-        for lector_name in lectors:
-            for course_name in lector_name.grades:
-                total_ += self.get_average_lector_rating_one_course(lector_name, course_name)
-        return round(total_ / len(lectors), 1)
-
-    def __lt__(self, other):
-        return self.get_average_lector_rating_all_courses(self) < other.get_average_lector_rating_all_courses(other)
+    def __lt__(self, other_lector):
+        """Сравнение лекторов"""
+        if isinstance(other_lector, Lector) and len(self.grades) > 0 and len(other_lector.grades) > 0:
+            return (f'Средняя оценка лектору {self.name} {self.surname} = {self.get_average_lector_rating_all_courses()}\n'
+                    f'Средняя оценка лектору {other_lector.name} {other_lector.surname} = {other_lector.get_average_lector_rating_all_courses()}\n'
+                    f'У лектора {self.name} {self.surname} оценка выше.')
 
     def __str__(self):
-        return f'Имя: {self.name}\nФамилия: {self.surname}\nСредняя оценка за лекции: {self.get_average_lector_rating_all_courses(lector)}\n'
+        """Вывод информации о лекторе"""
+        return (f'Имя: {self.name}\n'
+                f'Фамилия: {self.surname}\n'
+                f'Средняя оценка за лекции: {self.get_average_lector_rating_all_courses()}\n')
 
 class Reviewer(Mentor):  # эксперты только могут проверять домашнее задание
 
     def __init__(self, name, surname):
         super().__init__(name, surname)
-        self.reviewers_list = []
-        self.courses_attached = []
 
-    def rate_hw(self, student_name, course_name, grade):
-        if isinstance(student_name, Student) and (course_name in self.courses_attached or course_name in student_name.courses_in_progress):
-            if course_name in student_name.grades:
-                student_name.grades[course_name] += [grade]
+    def rate_hw(self, student, course, grade):
+        """Ревьювер ставит оценки студентам"""
+        if isinstance(student, Student) and course in self.courses_attached and course in student.courses_in_progress:
+            if course in student.grades:
+                student.grades[course] += [grade]
+                print(f'Оценка {grade} у студента {student.name} {student.surname} за курс {course} от ревьювера {self.name} {self.surname} поставлена.\n')
+                return
             else:
-                student_name.grades[course_name] = [grade]
+                student.grades[course] = [grade]
+                print(f'Оценка {grade} у студента {student.name} {student.surname} за курс {course} от ревьювера {self.name} {self.surname} поставлена.\n')
+                return
         else:
-            return 'Ошибка'
+            return f'Ошибка. {self.name} не ревьюер'
 
     def __str__(self):
-        for reviewer in reviewers_list:
-            return f'Имя: {self.name}\nФамилия: {self.surname}\n'
+        """Вывод информации о ревьювере"""
+        return(f'Имя: {self.name}\n'
+               f'Фамилия: {self.surname}\n')
 
 if __name__ == '__main__':
 
-# класс Student: Создание 2х экземпляров класса со всеми доступными атрибутами
+    # Студенты
 
-    student_1 = Student('Ruoy', 'Eman', 'your_gender')
-    student_2 = Student('Your', 'Name', 'older_gender')
+    nik_student = Student('Коля', 'Мазур', 'male')
+    nik_student.add_courses_in_progress('Python')
+    nik_student.add_finished_courses('Git')
 
-    students_list = [student_1, student_2]
+    lera_student = Student('Лера', 'Мазур', 'female')
+    lera_student.add_courses_in_progress('Git')
+    lera_student.add_finished_courses('Python')
 
-    student_1.finished_courses = ['Python', 'Git', 'English', 'Java']
-    student_2.finished_courses = ['Java', 'Full Stack', 'Spanish', 'Python']
+    students_list = [nik_student, lera_student]
 
-    student_1.courses_in_progress = ['Spanish', 'Data Science', 'DevOps']
-    student_2.courses_in_progress = ['English', 'Git', 'Data Studio']
+    # Менторы
 
-# Создание 2х экземпляров класса "Mentor" со всеми доступными атрибутами
+    bony_mentor = Mentor('Bony', 'Mono')
+    clide_mentor = Mentor('Clide', 'Nano')
+    bony_mentor.courses_attached.append('Git')
+    clide_mentor.courses_attached.append('Python')
+    mentors_list = [bony_mentor, clide_mentor]
 
-    mentor_1 = Mentor('Bony', 'Mono')
-    mentor_2 = Mentor('Clide', 'Nano')
-    mentor_1.courses_attached = ['Python', 'Full Stack', 'Git']
-    mentor_2.courses_attached = ['Java', 'English', 'Spanish']
+    # Лекторы
 
-# Создание 3х экземпляров класса "Lector" со всеми доступными атрибутами
+    oleg_lector = Lector('Олег', 'Булыгин')
+    oleg_lector.courses_attached.append('Python')
+    alena_lector = Lector('Алёна', 'Батицкая')
+    alena_lector.courses_attached.append('Git')
+    lectors_list = [oleg_lector, alena_lector]
 
-    lector_1 = Lector('Tommy', 'Cat')
-    lector_2 = Lector('Gerry', 'Mouse')
-    lector_3 = Lector('Scooby', 'Doo')
+    nik_student.rate_lector(oleg_lector, 'Python', 10)
+    lera_student.rate_lector(oleg_lector, 'Python', 9)
+    lera_student.rate_lector(alena_lector, 'Git', 8)
+    nik_student.rate_lector(alena_lector, 'Git', 7)
 
-    lectors_list = [lector_1, lector_2, lector_3]
+    # Ревьюеры
 
-    lector_1.courses_attached = ['Python', 'Full Stack', 'Git', 'English']
-    lector_2.courses_attached = ['Java', 'Git', 'English', 'Spanish', 'DevOps']
-    lector_3.courses_attached = ['English', 'Spanish', 'Git', 'Java', 'DevOps']
+    monica = Reviewer('Monica', 'Beluchi')
+    monica.courses_attached.append('Python')
+    donald = Reviewer('Donald', 'Reygan')
+    donald.courses_attached.append('Git')
+    rev_list = [monica, donald]
 
-    student_1.rate_course(lector_1, 'Python', 10)
-    student_2.rate_course(lector_1, 'Python', 9)
-    student_2.rate_course(lector_1, 'Full Stack', 7)
-    student_1.rate_course(lector_2, 'Java', 7)
-    student_2.rate_course(lector_2, 'Java', 9)
-    student_1.rate_course(lector_2, 'Git', 8)
-    student_2.rate_course(lector_3, 'Spanish', 6)
-    student_1.rate_course(lector_3, 'English', 9)
+    monica.rate_hw(nik_student, 'Python', 10)
+    monica.rate_hw(lera_student, 'Git', 9)
+    donald.rate_hw(nik_student, 'Python', 8)
+    donald.rate_hw(lera_student, 'Git', 7)
 
-# Создание 3х экземпляров класса "Reviewer" со всеми доступными атрибутами
+    print('-------------------------------------------------------------------')
+    print('Словарь с оценками студентов и лекторов:')  # Словарь с оценками студентов и лекторов
+    print('-------------------------------------------------------------------')
+    for student in students_list:
+        print(f'Оценки {student.name}: {student.grades}')
+    print()
+    for lector in lectors_list:
+        print(f'Оценки {lector.name}: {lector.grades}')
+    print()
 
-    reviewer_1 = Reviewer('Monica', 'Beluchi')
-    reviewer_2 = Reviewer('Donald', 'Reygan')
-    reviewer_3 = Reviewer('Snoop', 'Dogg')
-    reviewers_list = [reviewer_1, reviewer_2, reviewer_3]
+    def get_average_course_rating_all_students(some_list, course):
+        """Средняя оценка студентов по курсу"""
+        total_rate = []
+        for person in some_list:
+            if not isinstance(student, Student):
+                return f'{person} не студент.'
+            else:
+                if course in person.grades:
+                    total_rate += person.grades[course]
+        res = round(sum(total_rate) / len(total_rate), 1)
+        print(f'Средняя оценка студентов по курсу {course} = {res}')
+        return
 
-    reviewer_1.courses_attached = ['Python', 'Full Stack']
-    reviewer_2.courses_attached = ['Java', 'Git']
-    reviewer_3.courses_attached = ['English', 'Spanish']
+    def get_average_course_rating_all_lectors(some_list, course_name):
+        """Средняя оценка лекторов по курсу"""
+        total_rate = []
+        for person in some_list:
+            if not isinstance(person, Lector):
+                return f'{person} не лектор.'
+            else:
+                if course_name in person.grades:
+                    total_rate += person.grades[course_name]
+        res = round(sum(total_rate) / len(total_rate), 1)
+        print(f'Средняя оценка лекторов по курсу {course_name} = {res}')
+        return
 
-## Оценки студентов за завершенные курсы
 
-    reviewer_1.rate_hw(student_1, 'Python', 10)
-    reviewer_1.rate_hw(student_2, 'Full Stack', 9)
-    reviewer_1.rate_hw(student_2, 'Python', 9)
-    reviewer_2.rate_hw(student_1, 'Git', 8)
-    reviewer_2.rate_hw(student_2, 'Java', 9)
-    reviewer_1.rate_hw(student_1, 'Java', 6)
-    reviewer_3.rate_hw(student_1, 'English', 7)
-    reviewer_3.rate_hw(student_2, 'Spanish', 6)
-    reviewer_1.rate_hw(student_1, 'Python', 5)
-    reviewer_1.rate_hw(student_2, 'Full Stack', 3)
-    reviewer_1.rate_hw(student_2, 'Python', 5)
-    reviewer_2.rate_hw(student_1, 'Git', 4)
-    reviewer_2.rate_hw(student_2, 'Java', 5)
-    reviewer_1.rate_hw(student_1, 'Java', 7)
-    reviewer_3.rate_hw(student_1, 'English', 3)
-    reviewer_3.rate_hw(student_2, 'Spanish', 5)
+"""
+Задача №3 Полиморфизм и магические методы 
+"""
 
-## Оценки студентов за курсы в процессе обучения
-    reviewer_1.rate_hw(student_1, 'Data Science', 8)
-    reviewer_1.rate_hw(student_2, 'Data Studio', 9)
-    reviewer_2.rate_hw(student_1, 'Spanish', 10)
-    reviewer_2.rate_hw(student_2, 'Git', 9)
-    reviewer_3.rate_hw(student_1, 'DevOps', 7)
-    reviewer_3.rate_hw(student_2, 'English', 6)
-
-print('-------------------------------------------------------------------')
-print('Магические методы __repr__() и __str__():') # Магические методы __str__()
-print('-------------------------------------------------------------------')
-for reviewer in reviewers_list:
-    print(repr(reviewer),str(reviewer), sep = '\n')
-for lector in lectors_list:
-    print(repr(lector), str(lector), sep = '\n')
-for student in students_list:
-    print(repr(student), str(student), sep = '\n')
+print(str(monica), str(donald), sep = '\n')
+print(str(oleg_lector), str(alena_lector), sep = '\n')
+print(str(nik_student), str(lera_student), sep = '\n')
 print()
 print('-------------------------------------------------------------------')
 print('Рейтинги студентов и лекторов:')# Рейтинги студентов и лекторов
 print('-------------------------------------------------------------------')
-print(f'Рейтинг студента #1 > студента #2: {student_2.__lt__(student_1)}')
-print(f'Рейтинг лектора #1 > лектора #2: {lector_2.__lt__(lector_1)}')
-print(f'Рейтинг лектора #2 > лектора #3: {lector_3.__lt__(lector_2)}')
-print(f'Рейтинг лектора #1 > лектора #3: {lector_3.__lt__(lector_1)}')
-print()
-
-print('-------------------------------------------------------------------')
-print('Словарь с оценками студентов и лекторов:') # Словарь с оценками студентов и лекторов
-print('-------------------------------------------------------------------')
-for student in students_list:
-    print(f'Оценки студента #1: {student.grades}')
-print()
-for lector in lectors_list:
-    print(f'Оценки лектора #1: {lector.grades}')
+print(nik_student < lera_student)
+print(oleg_lector < alena_lector)
 print()
 
 """
 Задача №4 Полевые испытания 
 """
-print('-------------------------------------------------------------------')
-print('Средние оценки студентов') # Средение оценки студентов
-print('-------------------------------------------------------------------')
-print('Средние оценки ОДНОГО студента по ОДНОМУ курсу') ## Средние оценки конкретного студента по конкретному курсу
-for course in student_1.grades:
-    print(f'Ср оценка студента #1 за {course}: {student_1.get_average_student_rating_one_course(student_1, course)}')
-print()
-for course in student_2.grades:
-    print(f'Ср оценка студента #2 за {course}: {student_2.get_average_student_rating_one_course(student_2, course)}')
-print()
-print('Средние оценки ОДНОГО студента по ВСЕМ курсам') ## Средние оценки конкретного студента по всем курсам
-for student in students_list:
-    print(f'Ср оценка {student} по всем домашним заданиям / прошедшим курсам: {student.get_average_student_rating_all_courses(student)}')  # для подсчета средней оценки за домашние задания по всем курсам, которые сдавал студент (в качестве аргументов принимаем список завершенных курсов и имя студента);
-print()
-print('Средние оценки ВСЕХ студентов по ОДНОМУ курсу') ## Средение оценки всех студентов за конкрентный курс
-for course in student_1.grades:
-    print(f'Ср оценка всех студентов по {course}: {student_1.get_average_student_rating_all_courses(student_1,course)}')
-for course in student_2.grades:
-    print(f'Ср оценка всех студентов по {course}: {student_2.get_average_student_rating_all_courses(student_2,course)}')
-print()
-print('-------------------------------------------------------------------')
-print('Средние оценки лекторов') # Средение оценки лекторов
-print('-------------------------------------------------------------------')
-print('Средняя оценка ОДНОГО лектора по ОДНОМУ курсу') ## Средняя оценка конкретного лектора по заданному курсу
-for course in lector_1.grades:
-    print(f'Ср оценка лектора #1 за {course}: {lector_1.get_average_lector_rating_one_course(lector_1, course)}')
-for course in lector_2.grades:
-    print(f'Ср оценка лектора #2 за {course}: {lector_2.get_average_lector_rating_one_course(lector_2, course)}')
-for course in lector_3.grades:
-    print(f'Ср оценка лектора #2 за {course}: {lector_3.get_average_lector_rating_one_course(lector_3, course)}')
-print()
-print('Средняя оценка ОДНОГО лектора по ВСЕМ закрепленным курсам') ## Средняя оценка конкретного лектора по всем курсам
-print(f'Ср оценка лектора #1 по всем закрепленным курсам: {lector_1.get_average_lector_rating_all_courses(lector_1)}')
-print(f'Ср оценка лектора #2 по всем закрепленным курсам: {lector_2.get_average_lector_rating_all_courses(lector_2)}')
-print(f'Ср оценка лектора #3 по всем закрепленным курсам: {lector_3.get_average_lector_rating_all_courses(lector_3)}')
-print()
-print('Средняя оценка ВСЕХ лекторов по ОДНОМУ курсу') ## Средняя оценка всех лекторов по конкретному курсу
-for course in lector_1.grades:
-    print(f'Ср оценка лекторов по {course}: {lector_1.get_average_course_rating_all_lectors(lectors_list, course)}')
-for course in lector_2.grades:
-    print(f'Ср оценка лекторов по {course}: {lector_2.get_average_course_rating_all_lectors(lectors_list, course)}')
-for course in lector_3.grades:
-    print(f'Ср оценка лекторов по {course}: {lector_3.get_average_course_rating_all_lectors(lectors_list, course)}')
-print()
+
+get_average_course_rating_all_students(students_list, 'Python')
+get_average_course_rating_all_students(students_list, 'Git')
+get_average_course_rating_all_lectors(lectors_list, 'Git')
+get_average_course_rating_all_lectors(lectors_list, 'Python')
+
